@@ -33,6 +33,9 @@
             transform: translateY(-8px);
         }
     }
+    &__item.contain img {
+        object-fit: contain;
+    }
     &__name {
         font-weight: bold;
         font-size: 22px;

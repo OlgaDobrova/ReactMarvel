@@ -28,10 +28,11 @@ class MarvelService {
 
   _transformCharacter = (char) => {
     let descr = char.description ? char.description : "Описание отсутствует";
-    if (descr.length > 230) {
-      descr = descr.slice(0, 220) + "...";
+    if (descr.length > 170) {
+      descr = descr.slice(0, 170) + "...";
     }
     return {
+      id: char.id,
       name: char.name,
       description: descr,
       thumbnail: char.thumbnail.path + "." + char.thumbnail.extension,

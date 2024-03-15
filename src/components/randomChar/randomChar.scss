@@ -11,6 +11,9 @@
         grid-template-columns: 180px auto;
         column-gap: 30px;
     }
+    &__img.contain {
+        object-fit: contain;
+    }
     &__img {
         width: 180px;
         height: 180px;
