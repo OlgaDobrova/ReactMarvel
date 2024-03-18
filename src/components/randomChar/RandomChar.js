@@ -1,4 +1,5 @@
 import { Component } from "react";
+
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import MarvelService from "../../services/MarvelService";
@@ -32,6 +33,11 @@ class RandomChar extends Component {
     this.setState({ char, loading: false });
   };
 
+  //Смена статуса загрузки (для кнопки Попробуй)
+  onCharLoading = () => {
+    this.setState({ loading: true, error: false });
+  };
+
   //при 400х ошибках (напр, 404 - стр. не существует)
   onError = () => {
     this.setState({ loading: false, error: true });
@@ -44,6 +50,9 @@ class RandomChar extends Component {
     // const id = 1011010;
     //Случайный
     const id = Math.floor(Math.random() * (1011400 - 1011005) + 1011005);
+
+    //при загрузке персонажа ставлю спинер
+    this.onCharLoading();
 
     this.marvelService
       .getCharacter(id)
@@ -70,10 +79,7 @@ class RandomChar extends Component {
             Хотите узнать его получше?
           </p>
           <p className="randomchar__title">Или выберите другого</p>
-          <button
-            className="button button__main"
-            onClick={() => this.updateChar()}
-          >
+          <button className="button button__main" onClick={this.updateChar}>
             <div className="inner">попробуй</div>
           </button>
           <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />

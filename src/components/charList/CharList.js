@@ -17,13 +17,10 @@ class CharList extends Component {
 
   //Жизненный цикл компонента - этап - Монтирование
   componentDidMount() {
-    this.updateCharList();
-    // this.timerID = setInterval(this.updateChar, 5000);
-  }
-
-  //Жизненный цикл компонента - этап - Удаление (Размонтирование)
-  componentWillUnmount() {
-    // clearInterval(this.timerID);
+    this.marvelService
+      .getAllCharacters()
+      .then(this.onCharListLoaded)
+      .catch(this.onError);
   }
 
   //Смена статуса после загрузки персонажа
@@ -36,17 +33,36 @@ class CharList extends Component {
     this.setState({ loading: false, error: true });
   };
 
-  updateCharList = () => {
-    this.marvelService
-      .getAllCharacters()
-      .then(this.onCharListLoaded)
-      .catch(this.onError);
-  };
+  renderItems(arr) {
+    const items = arr.map((item) => {
+      const { id, name, thumbnail } = item;
+      const classThumbnail = thumbnail.includes(
+        "i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
+      )
+        ? "char__item contain"
+        : "char__item";
+      return (
+        <li
+          className={classThumbnail}
+          key={id}
+          onClick={() => this.props.onCharSelected(id)}
+        >
+          <img src={thumbnail} alt={name} />
+          <div className="char__name">{name}</div>
+        </li>
+      );
+    });
+    return items;
+  }
+
   render() {
     const { charList, loading, error } = this.state;
+
+    const elements = this.renderItems(charList);
+
     const errorMessage = error ? <ErrorMessage /> : null;
     const spinner = loading ? <Spinner /> : null;
-    const content = !(loading || error) ? <View charList={charList} /> : null;
+    const content = !(loading || error) ? elements : null;
 
     return (
       <div className="char__list">
@@ -60,24 +76,5 @@ class CharList extends Component {
     );
   }
 }
-
-const View = ({ charList }) => {
-  const elements = charList.map((item) => {
-    const { id, name, thumbnail } = item;
-    const classThumbnail = thumbnail.includes(
-      "i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
-    )
-      ? "char__item contain"
-      : "char__item";
-    return (
-      <li className={classThumbnail} key={id}>
-        <img src={thumbnail} alt={name} />
-        <div className="char__name">{name}</div>
-      </li>
-    );
-  });
-
-  return elements;
-};
 
 export default CharList;

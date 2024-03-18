@@ -27,10 +27,10 @@ class MarvelService {
   };
 
   _transformCharacter = (char) => {
-    let descr = char.description ? char.description : "Описание отсутствует";
-    if (descr.length > 170) {
-      descr = descr.slice(0, 170) + "...";
-    }
+    let descr = char.description
+      ? char.description.slice(0, 150) + "..."
+      : "Описание отсутствует";
+
     return {
       id: char.id,
       name: char.name,
@@ -38,6 +38,7 @@ class MarvelService {
       thumbnail: char.thumbnail.path + "." + char.thumbnail.extension,
       homepage: char.urls[0].url,
       wiki: char.urls[1].url,
+      comics: char.comics.items,
     };
   };
 }
