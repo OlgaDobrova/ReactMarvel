@@ -10,6 +10,10 @@ class CharList extends Component {
     charList: [],
     loading: true,
     error: false,
+    newItemLoading: false,
+    offset: 210,
+    limit: 9,
+    charEnded: false,
   };
 
   // элемент класса MarvelService - св-во класса RandomChar
@@ -17,15 +21,40 @@ class CharList extends Component {
 
   //Жизненный цикл компонента - этап - Монтирование
   componentDidMount() {
-    this.marvelService
-      .getAllCharacters()
-      .then(this.onCharListLoaded)
-      .catch(this.onError);
+    //при монтировании аргументов нет, значит MarvelService возьмет отступ по умолчанию
+    this.onRequest();
   }
 
+  //Метод для загрузки карточек персонажей (при загрузке и по кнопке Загузить ещё)
+  onRequest = (offset) => {
+    this.onCharListLoading();
+
+    this.marvelService
+      .getAllCharacters(offset)
+      .then(this.onCharListLoaded)
+      .catch(this.onError);
+  };
+
+  //loading - в процессе загрузки
+  onCharListLoading = () => {
+    this.setState({ newItemLoading: true });
+  };
+
   //Смена статуса после загрузки персонажа
-  onCharListLoaded = (charList) => {
-    this.setState({ charList, loading: false });
+  //loaded - уже загружен
+  onCharListLoaded = (newCharList) => {
+    let ended = false;
+    if (newCharList.length < 9) {
+      ended = true;
+    }
+    //есть зависимость от предыдущего состояния
+    this.setState(({ limit, offset, charList }) => ({
+      charList: [...charList, ...newCharList],
+      loading: false,
+      newItemLoading: false,
+      offset: offset + limit,
+      charEnded: ended,
+    }));
   };
 
   //при 400х ошибках (напр, 404 - стр. не существует)
@@ -56,7 +85,8 @@ class CharList extends Component {
   }
 
   render() {
-    const { charList, loading, error } = this.state;
+    const { charList, loading, error, offset, newItemLoading, charEnded } =
+      this.state;
 
     const elements = this.renderItems(charList);
 
@@ -69,8 +99,13 @@ class CharList extends Component {
         {errorMessage}
         {spinner}
         <ul className="char__grid">{content}</ul>
-        <button className="button button__main button__long">
-          <div className="inner">load more</div>
+        <button
+          className="button button__main button__long"
+          disabled={newItemLoading}
+          style={{ display: charEnded ? "none" : "block" }}
+          onClick={() => this.onRequest(offset)}
+        >
+          <div className="inner">загрузить ещё</div>
         </button>
       </div>
     );
