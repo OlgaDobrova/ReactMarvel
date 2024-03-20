@@ -10,7 +10,7 @@ import "./charList.scss";
 class CharList extends Component {
   constructor(props) {
     super(props);
-    this.mtRef = createRef();
+    this.charsRefs = [];
   }
   state = {
     charList: [],
@@ -70,39 +70,41 @@ class CharList extends Component {
 
   onCharClick = (item) => {
     console.log(item);
-    // для li при клике нужно добавть класс char__item_selected
+    console.log(this.charsRefs);
 
-    // при переходе с пом клавиши tab не могу выбрать li
-
-    // console.log(this.myRef.current.focus());
-
-    // нужно проверить пришли ли пропсы
+    //поднимаем id в props.onCharSelected на уровень выше
     this.props.onCharSelected(item.id);
+  };
+
+  onKeyDown = (e, id) => {
+    if (e.keyCode === 13 || e.keyCode === 32) {
+      //поднимаем id в props.onCharSelected на уровень выше
+      this.props.onCharSelected(id);
+    }
   };
 
   renderItems(arr) {
     const items = arr.map((item) => {
-      const { id, name, thumbnail } = item;
+      let { id, name, thumbnail, classItem } = item;
 
-      let classCharItem = "char__item";
+      classItem = "char__item";
 
       if (
         thumbnail.includes(
           "i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
         )
       ) {
-        classCharItem += " contain";
+        classItem += " contain";
       }
 
       return (
         <li
-          className={classCharItem}
+          className={classItem}
           key={id}
-          onClick={() => {
-            return this.onCharClick(item);
-          }}
+          onClick={() => this.onCharClick(item)}
           tabIndex={0}
-          ref={this.myRef}
+          ref={(ref) => this.charsRefs.push(ref)}
+          onKeyDown={(e) => this.onKeyDown(e, id)}
         >
           <img src={thumbnail} alt={name} />
           <div className="char__name">{name}</div>
