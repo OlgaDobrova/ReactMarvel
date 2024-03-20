@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { Component, createRef } from "react";
 import PropTypes from "prop-types";
 
 import Spinner from "../spinner/Spinner";
@@ -8,11 +8,15 @@ import MarvelService from "../../services/MarvelService";
 import "./charList.scss";
 
 class CharList extends Component {
+  constructor(props) {
+    super(props);
+    this.mtRef = createRef();
+  }
   state = {
     charList: [],
     loading: true,
     error: false,
-    newItemLoading: false,
+    newItemsLoading: false,
     offset: 210,
     limit: 9,
     charEnded: false,
@@ -39,7 +43,7 @@ class CharList extends Component {
 
   //loading - в процессе загрузки
   onCharListLoading = () => {
-    this.setState({ newItemLoading: true });
+    this.setState({ newItemsLoading: true });
   };
 
   //Смена статуса после загрузки персонажа
@@ -53,7 +57,7 @@ class CharList extends Component {
     this.setState(({ limit, offset, charList }) => ({
       charList: [...charList, ...newCharList],
       loading: false,
-      newItemLoading: false,
+      newItemsLoading: false,
       offset: offset + limit,
       charEnded: ended,
     }));
@@ -64,19 +68,41 @@ class CharList extends Component {
     this.setState({ loading: false, error: true });
   };
 
+  onCharClick = (item) => {
+    console.log(item);
+    // для li при клике нужно добавть класс char__item_selected
+
+    // при переходе с пом клавиши tab не могу выбрать li
+
+    // console.log(this.myRef.current.focus());
+
+    // нужно проверить пришли ли пропсы
+    this.props.onCharSelected(item.id);
+  };
+
   renderItems(arr) {
     const items = arr.map((item) => {
       const { id, name, thumbnail } = item;
-      const classThumbnail = thumbnail.includes(
-        "i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
-      )
-        ? "char__item contain"
-        : "char__item";
+
+      let classCharItem = "char__item";
+
+      if (
+        thumbnail.includes(
+          "i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
+        )
+      ) {
+        classCharItem += " contain";
+      }
+
       return (
         <li
-          className={classThumbnail}
+          className={classCharItem}
           key={id}
-          onClick={() => this.props.onCharSelected(id)}
+          onClick={() => {
+            return this.onCharClick(item);
+          }}
+          tabIndex={0}
+          ref={this.myRef}
         >
           <img src={thumbnail} alt={name} />
           <div className="char__name">{name}</div>
@@ -87,7 +113,7 @@ class CharList extends Component {
   }
 
   render() {
-    const { charList, loading, error, offset, newItemLoading, charEnded } =
+    const { charList, loading, error, offset, newItemsLoading, charEnded } =
       this.state;
 
     const elements = this.renderItems(charList);
@@ -103,7 +129,7 @@ class CharList extends Component {
         <ul className="char__grid">{content}</ul>
         <button
           className="button button__main button__long"
-          disabled={newItemLoading}
+          disabled={newItemsLoading}
           style={{ display: charEnded ? "none" : "block" }}
           onClick={() => this.onRequest(offset)}
         >
