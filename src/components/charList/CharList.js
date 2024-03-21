@@ -70,35 +70,32 @@ class CharList extends Component {
 
   setCharRef = (ref) => this.charsRefs.push(ref);
 
-  onCharClick = (e, id) => {
-    this.charsRefs.forEach((linkRef) =>
-      linkRef.classList.remove("char__item_selected")
+  focusOnChar = (index) => {
+    this.charsRefs.forEach((item) =>
+      item.classList.remove("char__item_selected")
     );
-    e.currentTarget.classList.add("char__item_selected");
-    // e.currentTarget.focus();
+    this.charsRefs[index].classList.add("char__item_selected");
+    this.charsRefs[index].focus();
+  };
 
+  onCharClick = (id, index) => {
+    this.focusOnChar(index);
     //поднимаем id в props.onCharSelected на уровень выше
     this.props.onCharSelected(id);
   };
 
-  onKeyDown = (e, id) => {
-    this.charsRefs.forEach((linkRef) =>
-      linkRef.classList.remove("char__item_selected")
-    );
-
+  onKeyDown = (e, id, index) => {
     if (e.keyCode === 13 || e.keyCode === 32) {
-      e.currentTarget.classList.add("char__item_selected");
+      this.focusOnChar(index);
       //поднимаем id в props.onCharSelected на уровень выше
       this.props.onCharSelected(id);
     }
   };
 
   renderItems(arr) {
-    const items = arr.map((item) => {
-      let { id, name, thumbnail, classItem } = item;
-
-      classItem = "char__item";
-
+    const items = arr.map((item, index) => {
+      const { id, name, thumbnail } = item;
+      let classItem = "char__item";
       if (
         thumbnail.includes(
           "i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
@@ -111,10 +108,10 @@ class CharList extends Component {
         <li
           className={classItem}
           key={id}
-          onClick={(e) => this.onCharClick(e, id)}
+          onClick={() => this.onCharClick(id, index)}
           tabIndex={0}
           ref={this.setCharRef}
-          onKeyDown={(e) => this.onKeyDown(e, id)}
+          onKeyDown={(e) => this.onKeyDown(e, id, index)}
         >
           <img src={thumbnail} alt={name} />
           <div className="char__name">{name}</div>
