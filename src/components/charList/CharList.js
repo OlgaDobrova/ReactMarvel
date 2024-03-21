@@ -68,16 +68,26 @@ class CharList extends Component {
     this.setState({ loading: false, error: true });
   };
 
-  onCharClick = (item) => {
-    console.log(item);
-    console.log(this.charsRefs);
+  setCharRef = (ref) => this.charsRefs.push(ref);
+
+  onCharClick = (e, id) => {
+    this.charsRefs.forEach((linkRef) =>
+      linkRef.classList.remove("char__item_selected")
+    );
+    e.currentTarget.classList.add("char__item_selected");
+    // e.currentTarget.focus();
 
     //поднимаем id в props.onCharSelected на уровень выше
-    this.props.onCharSelected(item.id);
+    this.props.onCharSelected(id);
   };
 
   onKeyDown = (e, id) => {
+    this.charsRefs.forEach((linkRef) =>
+      linkRef.classList.remove("char__item_selected")
+    );
+
     if (e.keyCode === 13 || e.keyCode === 32) {
+      e.currentTarget.classList.add("char__item_selected");
       //поднимаем id в props.onCharSelected на уровень выше
       this.props.onCharSelected(id);
     }
@@ -101,9 +111,9 @@ class CharList extends Component {
         <li
           className={classItem}
           key={id}
-          onClick={() => this.onCharClick(item)}
+          onClick={(e) => this.onCharClick(e, id)}
           tabIndex={0}
-          ref={(ref) => this.charsRefs.push(ref)}
+          ref={this.setCharRef}
           onKeyDown={(e) => this.onKeyDown(e, id)}
         >
           <img src={thumbnail} alt={name} />
