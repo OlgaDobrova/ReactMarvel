@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState, useEffect } from "react";
 
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
@@ -7,43 +7,43 @@ import MarvelService from "../../services/MarvelService";
 import "./randomChar.scss";
 import mjolnir from "../../resources/img/mjolnir.png";
 
-class RandomChar extends Component {
-  state = {
-    char: {},
-    loading: true,
-    error: false,
-  };
+const RandomChar = () => {
+  const [char, setChar] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  // элемент класса MarvelService - св-во класса RandomChar
-  marvelService = new MarvelService();
+  // элемент класса MarvelService - объект RandomChar
+  const marvelService = new MarvelService();
 
-  //Жизненный цикл компонента - этап - Монтирование
-  componentDidMount() {
-    this.updateChar();
-    // this.timerID = setInterval(this.updateChar, 5000);
-  }
+  useEffect(() => {
+    updateChar();
+    // timerID = setInterval(updateChar, 5000);
 
-  //Жизненный цикл компонента - этап - Удаление (Размонтирование)
-  componentWillUnmount() {
-    // clearInterval(this.timerID);
-  }
+    //Удаление (Размонтирование)
+    // return () => {
+    //   window.clearInterval(timerID);
+    // }
+  }, []);
 
   //Смена статуса после загрузки персонажа
-  onCharLoaded = (char) => {
-    this.setState({ char, loading: false });
+  const onCharLoaded = (char) => {
+    setChar(char);
+    setLoading(false);
   };
 
   //Смена статуса загрузки (для кнопки Попробуй)
-  onCharLoading = () => {
-    this.setState({ loading: true, error: false });
+  const onCharLoading = () => {
+    setLoading(true);
+    setError(false);
   };
 
   //при 400х ошибках (напр, 404 - стр. не существует)
-  onError = () => {
-    this.setState({ loading: false, error: true });
+  const onError = () => {
+    setLoading(false);
+    setError(true);
   };
 
-  updateChar = () => {
+  const updateChar = () => {
     //ошибка. такого нет
     // const id = 101710035548;
     //SPIDER-MAN (ULTIMATE)
@@ -52,42 +52,36 @@ class RandomChar extends Component {
     const id = Math.floor(Math.random() * (1011400 - 1011005) + 1011005);
 
     //при загрузке персонажа ставлю спинер
-    this.onCharLoading();
+    onCharLoading();
 
-    this.marvelService
-      .getCharacter(id)
-      .then(this.onCharLoaded)
-      .catch(this.onError);
+    marvelService.getCharacter(id).then(onCharLoaded).catch(onError);
   };
 
-  render() {
-    const { char, loading, error } = this.state;
-    const errorMessage = error ? <ErrorMessage /> : null;
-    const spinner = loading ? <Spinner /> : null;
-    const content = !(loading || error) ? <View char={char} /> : null;
+  const errorMessage = error ? <ErrorMessage /> : null;
+  const spinner = loading ? <Spinner /> : null;
+  const content = !(loading || error) ? <View char={char} /> : null;
 
-    return (
-      <div className="randomchar">
-        {/* если значение компонента null, то он не отрендерится */}
-        {errorMessage}
-        {spinner}
-        {content}
-        <div className="randomchar__static">
-          <p className="randomchar__title">
-            Случайный персонаж на сегодня!
-            <br />
-            Хотите узнать его получше?
-          </p>
-          <p className="randomchar__title">Или выберите другого</p>
-          <button className="button button__main" onClick={this.updateChar}>
-            <div className="inner">попробуй</div>
-          </button>
-          <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
-        </div>
+  return (
+    <div className="randomchar">
+      {/* если значение компонента null, то он не отрендерится */}
+      {errorMessage}
+      {spinner}
+      {content}
+      <div className="randomchar__static">
+        <p className="randomchar__title">
+          Случайный персонаж на сегодня!
+          <br />
+          Хотите узнать его получше?
+        </p>
+        <p className="randomchar__title">Или выберите другого</p>
+        <button className="button button__main" onClick={updateChar}>
+          <div className="inner">попробуй</div>
+        </button>
+        <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 const View = ({ char }) => {
   const { id, name, description, thumbnail, homepage, wiki } = char;
